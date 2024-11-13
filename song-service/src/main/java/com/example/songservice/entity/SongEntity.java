@@ -13,22 +13,17 @@ public class SongEntity {
     @NonNull
     @Column(name = "name")
     private String name;
-    @NonNull
     @Column(name = "artist")
     private String artist;
-    @NonNull
     @Column(name = "album")
     private String album;
 
-    @NonNull
     @Column(name = "length")
     private String length;
 
-    @NonNull
     @Column(name = "year")
     private String year;
 
-    @NonNull
     @Column(name = "resource_id")
     private Integer resourceId;
 

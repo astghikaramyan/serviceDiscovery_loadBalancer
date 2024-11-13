@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true   # Register this client with Eureka
+    fetch-registry: true         # Fetch registry information from Eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: resource-service
+          uri: lb://RESOURCE-SERVICE
+          predicates:
+            - Path=/resource-api/**
+
+        - id: song-service
+          uri: lb://SONG-SERVICE
+          predicates:
+            - Path=/api/**

@@ -89,7 +89,7 @@ public class ResourceService {
     }
 
     private ResponseEntity<String> createSongMetadata(final SongMetadata songMetadata) {
-        String url = "http://song:8081/api/songs";
+        String url = "http://song-service:8081/api/songs";
         return restTemplate.postForEntity(url, songMetadata, String.class);
     }
 }

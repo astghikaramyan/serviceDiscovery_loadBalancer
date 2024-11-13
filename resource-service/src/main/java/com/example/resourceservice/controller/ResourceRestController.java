@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import java.util.*;
 
@@ -34,8 +36,19 @@ public class ResourceRestController {
     @GetMapping("/resource-api/resources/{id}")
     public ResponseEntity<byte[]> getResource(@PathVariable Integer id) {
         try {
+            try {
+                Integer.parseInt(String.valueOf(id));
+                if (id <= 0) {
+                    throw new IllegalArgumentException(String.format("Resource ID=%s i not a positive whole number", id));
+                }
+            } catch (final NumberFormatException e) {
+                throw new IllegalArgumentException(String.format("Resource ID=%s is not a whole number ", id));
+            }
             final ResourceEntity resource = resourceService.getResource(id);
-            return ResponseEntity.ok(resource.getData());
+            if(Objects.nonNull(resource)){
+                return ResponseEntity.ok(resource.getData());
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Resource with ID=%s not found", id));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 
@@ -44,8 +57,8 @@ public class ResourceRestController {
 
     @DeleteMapping("/resource-api/resources")
     public ResponseEntity<Map<String, List<Integer>>> deleteResource(@RequestParam String id) {
-        if (Objects.nonNull(id) && id.length() >= 200) {
-            throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 199. ");
+        if (Objects.nonNull(id) && id.length() > 200) {
+            throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 200. ");
         }
         String[] ids = Optional.ofNullable(id).map(param -> param.split(",")).orElse(new String[]{});
         try {
@@ -53,8 +66,8 @@ public class ResourceRestController {
             Arrays.stream(ids).forEach(param -> {
                 try {
                     Integer.parseInt(param);
-                } catch (NumberFormatException e) {
-                    throw new NumberFormatException(String.format("Provided param value %s is not a supported numeric one", param));
+                } catch (final NumberFormatException e) {
+                    throw new IllegalArgumentException(String.format("Provided param value %s is not a supported numeric one", param));
                 }
             });
             Arrays.stream(ids).forEach(param -> {

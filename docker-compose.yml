@@ -1,17 +1,19 @@
 services:
-  eureka_service:
+  eureka-server:
     build:
-      context: ./eureka_server
+      context: ./eureka-server
       dockerfile: Dockerfile
     ports:
-      - "8083:8083"
+      - "8761:8761"
 
   gateway-service:
     build:
-      context: ./gateway_service
+      context: ./gateway-service
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      - eureka-server
 
   resource_db:
     image: postgres:17-alpine
@@ -37,18 +39,24 @@ services:
     volumes:
       - ./init-scripts/song-db/create-table-init.sql:/docker-entrypoint-initdb.d/create-table-init.sql
 
-  resource:
+  resource-service:
     build:
       context: ./resource-service
       dockerfile: Dockerfile
     ports:
-     - "8085:8085"
+      - "8085:8085"
+    depends_on:
+      - resource_db
+      - eureka-server
 
-  song:
+  song-service:
     build:
       context: ./song-service
       dockerfile: Dockerfile
     ports:
-     - "8081:8081"
+      - "8081:8081"
     deploy:
       replicas: 2
+    depends_on:
+      - song_db
+      - eureka-server
