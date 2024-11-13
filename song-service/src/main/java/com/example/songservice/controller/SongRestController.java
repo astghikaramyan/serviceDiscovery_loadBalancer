@@ -47,8 +47,8 @@ public class SongRestController {
 
     @DeleteMapping("/api/songs")
     public ResponseEntity<Map<String, List<Integer>>> deleteSongsMetadata(@RequestParam String id) {
-        if (Objects.nonNull(id) && id.length() >= 200) {
-            throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 199. ");
+        if (Objects.nonNull(id) && id.length() > 200) {
+            throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 200. ");
         }
         String[] ids = Optional.ofNullable(id).map(param -> param.split(",")).orElse(new String[]{});
         try {

@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: song-service  # Unique name for each microservice
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/  # URL where the Eureka server is running
+    register-with-eureka: true   # Register this client with Eureka
+    fetch-registry: true         # Fetch registry information from Eureka
