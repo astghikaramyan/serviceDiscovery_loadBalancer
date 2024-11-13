@@ -5,21 +5,25 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-    register-with-eureka: true   # Register this client with Eureka
-    fetch-registry: true         # Fetch registry information from Eureka
+    instance:
+      prefer-ip-address: true
 
 spring:
   application:
     name: gateway-service
+
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
       routes:
         - id: resource-service
-          uri: lb://RESOURCE-SERVICE
+          uri: lb://resource-service
           predicates:
-            - Path=/resource-api/**
-
+            - Path=/resources/
         - id: song-service
-          uri: lb://SONG-SERVICE
+          uri: lb://song-service
           predicates:
-            - Path=/api/**
+            - Path=/songs/

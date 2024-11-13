@@ -14,11 +14,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExc
 import java.util.*;
 
 @RestController
+@RequestMapping("/resources")
 public class ResourceRestController {
     @Autowired
     private ResourceService resourceService;
 
-    @PostMapping(value = "/resource-api/resources", consumes = "audio/mpeg")
+    @PostMapping(consumes = "audio/mpeg")
     public ResponseEntity<Map<String, Integer>> uploadResource(@RequestBody byte[] audioData) {
         try {
             final ResourceEntity resourceEntity = resourceService.createResource(audioData);
@@ -33,7 +34,7 @@ public class ResourceRestController {
         }
     }
 
-    @GetMapping("/resource-api/resources/{id}")
+    @GetMapping(value = "/{id}", produces = "audio/mpeg")
     public ResponseEntity<byte[]> getResource(@PathVariable Integer id) {
         try {
             try {
@@ -55,7 +56,7 @@ public class ResourceRestController {
         }
     }
 
-    @DeleteMapping("/resource-api/resources")
+    @DeleteMapping
     public ResponseEntity<Map<String, List<Integer>>> deleteResource(@RequestParam String id) {
         if (Objects.nonNull(id) && id.length() > 200) {
             throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 200. ");

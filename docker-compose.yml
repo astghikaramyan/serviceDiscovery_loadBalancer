@@ -22,8 +22,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${RESOURCE_DB}
-    ports:
-      - "5433:5432"
     volumes:
       - ./init-scripts/resource-db/create-table-init.sql:/docker-entrypoint-initdb.d/create-table-init.sql
 
@@ -34,8 +32,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${SONG_DB}
-    ports:
-      - "5434:5432"
     volumes:
       - ./init-scripts/song-db/create-table-init.sql:/docker-entrypoint-initdb.d/create-table-init.sql
 
@@ -43,8 +39,6 @@ services:
     build:
       context: ./resource-service
       dockerfile: Dockerfile
-    ports:
-      - "8085:8085"
     depends_on:
       - resource_db
       - eureka-server
@@ -53,8 +47,6 @@ services:
     build:
       context: ./song-service
       dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
     deploy:
       replicas: 2
     depends_on:

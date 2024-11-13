@@ -14,13 +14,14 @@ import javax.validation.Valid;
 import java.util.*;
 
 @RestController
+@RequestMapping("/songs")
 public class SongRestController {
     @Autowired
     private SongService songService;
     @Autowired
     private SongMapper songMapper;
 
-    @PostMapping("/api/songs")
+    @PostMapping
     public ResponseEntity<Map<String, Integer>> addSongMetadata(@RequestBody @Valid SongDTO songDTO) {
         try {
             final SongEntity songEntity = songService.addSong(this.songMapper.mapToEntity(songDTO));
@@ -32,7 +33,7 @@ public class SongRestController {
         }
     }
 
-    @GetMapping("/api/songs/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<SongDTO> getSongMetadata(@PathVariable Integer id) {
         try {
             final Optional<SongEntity> songEntity = songService.getSong(id);
@@ -45,7 +46,7 @@ public class SongRestController {
         }
     }
 
-    @DeleteMapping("/api/songs")
+    @DeleteMapping
     public ResponseEntity<Map<String, List<Integer>>> deleteSongsMetadata(@RequestParam String id) {
         if (Objects.nonNull(id) && id.length() > 200) {
             throw new IllegalArgumentException("Characters length is higher than allowed. Max length is 200. ");
