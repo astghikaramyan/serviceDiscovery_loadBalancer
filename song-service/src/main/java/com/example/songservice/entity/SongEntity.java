@@ -13,6 +13,7 @@ public class SongEntity {
     @NonNull
     @Column(name = "name")
     private String name;
+    @NonNull
     @Column(name = "artist")
     private String artist;
     @Column(name = "album")

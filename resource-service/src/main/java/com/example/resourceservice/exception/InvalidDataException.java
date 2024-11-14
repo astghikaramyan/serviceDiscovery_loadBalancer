@@ -3,22 +3,23 @@ package com.example.resourceservice.exception;
 import com.example.resourceservice.model.ErrorResponse;
 import com.example.resourceservice.model.SimpleErrorResponse;
 
-public class NotFoundException extends RuntimeException {
+
+public class InvalidDataException extends RuntimeException{
     private ErrorResponse errorResponse;
     private SimpleErrorResponse simpleErrorResponse;
-    public NotFoundException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    public NotFoundException(final String message) {
+    public InvalidDataException(final String message) {
         super(message);
     }
-    public NotFoundException(final String message, final ErrorResponse errorResponse) {
-        super(message);
+    public InvalidDataException(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
     }
-    public NotFoundException(SimpleErrorResponse e){
-        this.simpleErrorResponse = e;
+
+    public InvalidDataException(final SimpleErrorResponse simpleErrorResponse) {
+        this.simpleErrorResponse = simpleErrorResponse;
+    }
+    public InvalidDataException(final String message, final ErrorResponse errorResponse) {
+        super(message);
+        this.errorResponse = errorResponse;
     }
 
     public ErrorResponse getErrorResponse() {
