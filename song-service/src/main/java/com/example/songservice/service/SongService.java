@@ -2,13 +2,19 @@ package com.example.songservice.service;
 
 import com.example.songservice.dto.SongDTO;
 import com.example.songservice.entity.SongEntity;
-import com.example.songservice.model.ErrorDetails;
+import com.example.songservice.exception.ConflictDataException;
+import com.example.songservice.model.ValidationErrorResponse;
 import com.example.songservice.model.ErrorResponse;
-import com.example.songservice.model.SimpleErrorResponse;
 import com.example.songservice.repository.SongRepository;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -16,6 +22,8 @@ import java.util.Optional;
 public class SongService {
     @Autowired
     private SongRepository songRepository;
+    @Autowired
+    private RestTemplate restTemplate;
 
     public SongEntity addSong(SongEntity songEntity) {
         return this.songRepository.save(songEntity);
@@ -24,33 +32,39 @@ public class SongService {
     public Optional<SongEntity> getSong(final Integer id) {
         return this.songRepository.findById(id);
     }
+    public Optional<SongEntity> getSongByResourceId(final Integer resourceId) {
+        return this.songRepository.findAll().stream().filter(songEntity -> songEntity.getResourceId().equals(resourceId)).findFirst();
+    }
+
 
     public void deleteSong(final Integer id) {
         this.songRepository.deleteById(id);
-
     }
-    public ErrorResponse checkValidity(SongDTO songDTO){
-        final ErrorResponse errorResponse = new ErrorResponse();
-        final ErrorDetails errorDetails = new ErrorDetails();
+    public boolean existById(final Integer id){
+        return this.songRepository.existsById(id);
+    }
+    public ValidationErrorResponse checkValidity(SongDTO songDTO){
+        final ValidationErrorResponse validationErrorResponse = new ValidationErrorResponse();
+        final Map<String, String> errorDetails = new HashMap<>();
         if(!isValidYear(songDTO.getYear())){
-            errorResponse.setErrorCode("400");
-            errorResponse.setErrorMessage("Validation error");
-            errorDetails.setYear(String.format("%s Year must be in YYYY format", songDTO.getYear()));
+            validationErrorResponse.setErrorCode("400");
+            validationErrorResponse.setErrorMessage("Validation error");
         }
-        if(!isValidDuration(songDTO.getLength())){
-            errorResponse.setErrorCode("400");
-            errorResponse.setErrorMessage("Validation error");
-            errorDetails.setDuration(String.format("%s Duration must be in MM:SS format", songDTO.getLength()));
+        if(!isValidDuration(songDTO.getDuration())){
+            validationErrorResponse.setErrorCode("400");
+            validationErrorResponse.setErrorMessage("Validation error");
         }
-        errorResponse.setErrorDetails(errorDetails);
-        return errorResponse;
+        errorDetails.put("duration", "Duration must be in mm:ss format");
+        errorDetails.put("year", "year must be between 1900 and 2099");
+        validationErrorResponse.setErrorDetails(errorDetails);
+        return validationErrorResponse;
     }
 
-    public SimpleErrorResponse checkMissingFields(SongDTO songDTO){
-        final SimpleErrorResponse errorResponse = new SimpleErrorResponse();
+    public ErrorResponse checkMissingFields(SongDTO songDTO){
+        final ErrorResponse errorResponse = new ErrorResponse();
         if(Objects.isNull(songDTO.getName()) || songDTO.getName().isEmpty()){
             errorResponse.setErrorCode("400");
-            errorResponse.setErrorMessage("Name field is mandatory");
+            errorResponse.setErrorMessage("Song name is required");
         }
         return errorResponse;
     }
@@ -63,6 +77,10 @@ public class SongService {
         return false;
     }
     public static boolean isValidYear(String year){
-        return Objects.nonNull(year) && year.length() == 4;
+        final boolean isCorrectYear = Optional.ofNullable(year)
+                                              .filter(v-> v.length()==4)
+                                              .map(s-> s.chars().allMatch(Character::isDigit))
+                                              .orElse(false);
+        return isCorrectYear && (Integer.parseInt(year) > 1900 && Integer.valueOf(year) < 2099);
     }
 }

@@ -11,7 +11,7 @@ public class SongMapper {
         songEntity.setName(songDTO.getName());
         songEntity.setArtist(songDTO.getArtist());
         songEntity.setAlbum(songDTO.getAlbum());
-        songEntity.setLength(songDTO.getLength());
+        songEntity.setDuration(songDTO.getDuration());
         songEntity.setYear(songDTO.getYear());
         songEntity.setResourceId(songDTO.getResourceId());
         return songEntity;
@@ -19,10 +19,11 @@ public class SongMapper {
 
     public SongDTO mapToDTO(SongEntity songEntity) {
         final SongDTO songDTO = new SongDTO();
+        songDTO.setId(songEntity.getId());
         songDTO.setName(songEntity.getName());
         songDTO.setArtist(songEntity.getArtist());
         songDTO.setAlbum(songEntity.getAlbum());
-        songDTO.setLength(songEntity.getLength());
+        songDTO.setDuration(songEntity.getDuration());
         songDTO.setYear(songEntity.getYear());
         songDTO.setResourceId(songEntity.getResourceId());
         return songDTO;

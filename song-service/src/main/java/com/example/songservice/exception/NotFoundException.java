@@ -1,11 +1,11 @@
 package com.example.songservice.exception;
 
+import com.example.songservice.model.ValidationErrorResponse;
 import com.example.songservice.model.ErrorResponse;
-import com.example.songservice.model.SimpleErrorResponse;
 
 public class NotFoundException extends RuntimeException {
+    private ValidationErrorResponse validationErrorResponse;
     private ErrorResponse errorResponse;
-    private SimpleErrorResponse simpleErrorResponse;
     public NotFoundException(final String message, final Throwable cause) {
         super(message, cause);
     }
@@ -13,27 +13,27 @@ public class NotFoundException extends RuntimeException {
     public NotFoundException(final String message) {
         super(message);
     }
-    public NotFoundException(final String message, final ErrorResponse errorResponse) {
+    public NotFoundException(final String message, final ValidationErrorResponse validationErrorResponse) {
         super(message);
-        this.errorResponse = errorResponse;
+        this.validationErrorResponse = validationErrorResponse;
     }
-    public NotFoundException(SimpleErrorResponse e){
-        this.simpleErrorResponse = e;
+    public NotFoundException(ErrorResponse e){
+        this.errorResponse = e;
     }
 
-    public ErrorResponse getErrorResponse() {
+    public ValidationErrorResponse getErrorResponse() {
+        return validationErrorResponse;
+    }
+
+    public void setErrorResponse(final ValidationErrorResponse validationErrorResponse) {
+        this.validationErrorResponse = validationErrorResponse;
+    }
+
+    public ErrorResponse getSimpleErrorResponse() {
         return errorResponse;
     }
 
-    public void setErrorResponse(final ErrorResponse errorResponse) {
+    public void setSimpleErrorResponse(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
-    }
-
-    public SimpleErrorResponse getSimpleErrorResponse() {
-        return simpleErrorResponse;
-    }
-
-    public void setSimpleErrorResponse(final SimpleErrorResponse simpleErrorResponse) {
-        this.simpleErrorResponse = simpleErrorResponse;
     }
 }

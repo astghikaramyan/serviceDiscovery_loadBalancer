@@ -1,40 +1,40 @@
 package com.example.resourceservice.exception;
 
+import com.example.resourceservice.model.ValidationErrorResponse;
 import com.example.resourceservice.model.ErrorResponse;
-import com.example.resourceservice.model.SimpleErrorResponse;
 
 
 public class InvalidDataException extends RuntimeException{
+    private ValidationErrorResponse validationErrorResponse;
     private ErrorResponse errorResponse;
-    private SimpleErrorResponse simpleErrorResponse;
     public InvalidDataException(final String message) {
         super(message);
     }
+    public InvalidDataException(final ValidationErrorResponse validationErrorResponse) {
+        this.validationErrorResponse = validationErrorResponse;
+    }
+
     public InvalidDataException(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
     }
-
-    public InvalidDataException(final SimpleErrorResponse simpleErrorResponse) {
-        this.simpleErrorResponse = simpleErrorResponse;
-    }
-    public InvalidDataException(final String message, final ErrorResponse errorResponse) {
+    public InvalidDataException(final String message, final ValidationErrorResponse validationErrorResponse) {
         super(message);
-        this.errorResponse = errorResponse;
+        this.validationErrorResponse = validationErrorResponse;
     }
 
-    public ErrorResponse getErrorResponse() {
+    public ValidationErrorResponse getErrorResponse() {
+        return validationErrorResponse;
+    }
+
+    public void setErrorResponse(final ValidationErrorResponse validationErrorResponse) {
+        this.validationErrorResponse = validationErrorResponse;
+    }
+
+    public ErrorResponse getSimpleErrorResponse() {
         return errorResponse;
     }
 
-    public void setErrorResponse(final ErrorResponse errorResponse) {
+    public void setSimpleErrorResponse(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
-    }
-
-    public SimpleErrorResponse getSimpleErrorResponse() {
-        return simpleErrorResponse;
-    }
-
-    public void setSimpleErrorResponse(final SimpleErrorResponse simpleErrorResponse) {
-        this.simpleErrorResponse = simpleErrorResponse;
     }
 }

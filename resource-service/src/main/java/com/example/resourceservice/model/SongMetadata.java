@@ -4,7 +4,7 @@ public class SongMetadata {
     private String name;
     private String artist;
     private String album;
-    private String length;
+    private String duration;
     private String year;
     private Integer resourceId;
 
@@ -32,12 +32,12 @@ public class SongMetadata {
         this.album = album;
     }
 
-    public String getLength() {
-        return length;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setLength(final String length) {
-        this.length = length;
+    public void setDuration(final String duration) {
+        this.duration = duration;
     }
 
     public String getYear() {

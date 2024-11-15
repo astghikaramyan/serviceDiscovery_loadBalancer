@@ -1,4 +1,4 @@
-package com.example.songservice.dto;
+package com.example.resourceservice.dto;
 
 public class SongDTO {
 
@@ -66,4 +66,6 @@ public class SongDTO {
     public void setResourceId(final Integer resourceId) {
         this.resourceId = resourceId;
     }
+
+
 }

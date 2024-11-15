@@ -19,8 +19,8 @@ public class SongEntity {
     @Column(name = "album")
     private String album;
 
-    @Column(name = "length")
-    private String length;
+    @Column(name = "duration")
+    private String duration;
 
     @Column(name = "year")
     private String year;
@@ -60,12 +60,12 @@ public class SongEntity {
         this.album = album;
     }
 
-    public String getLength() {
-        return length;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setLength(final String length) {
-        this.length = length;
+    public void setDuration(final String length) {
+        this.duration = length;
     }
 
     public String getYear() {
