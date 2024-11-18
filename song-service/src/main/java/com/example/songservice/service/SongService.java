@@ -2,14 +2,10 @@ package com.example.songservice.service;
 
 import com.example.songservice.dto.SongDTO;
 import com.example.songservice.entity.SongEntity;
-import com.example.songservice.exception.ConflictDataException;
-import com.example.songservice.model.ValidationErrorResponse;
 import com.example.songservice.model.ErrorResponse;
+import com.example.songservice.model.ValidationErrorResponse;
 import com.example.songservice.repository.SongRepository;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

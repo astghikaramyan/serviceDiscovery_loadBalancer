@@ -62,21 +62,21 @@ public class SongRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SongDTO> getSongMetadata(@PathVariable Integer id) {
+    public ResponseEntity<SongDTO> getSongMetadata(@PathVariable String id) {
         try {
-            if(!isNumeric(String.valueOf(id))){
-                throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, id.toString()));
+            if(!isNumeric(id)){
+                throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, id));
             }
-            if (!isValidNumeric(String.valueOf(id))) {
-                throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE, id.toString()));
+            if (!isValidNumeric(id)) {
+                throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE, id));
             }
-            if (songService.existById(id)) {
-                final Optional<SongEntity> songEntity = songService.getSong(id);
+            if (songService.existById(Integer.valueOf(id))) {
+                final Optional<SongEntity> songEntity = songService.getSong(Integer.valueOf(id));
                 if (songEntity.isPresent()) {
                     return ResponseEntity.ok(songMapper.mapToDTO(songEntity.get()));
                 }
             }
-            throw new NotFoundException(String.format("Song metadata for ID=%d not found", id));
+            throw new NotFoundException(String.format("Song metadata for ID=%s not found", id));
         } catch (NotFoundException e) {
             throw new NotFoundException(prepareErrorResponse(e.getMessage(), NOT_FOUND_REQUEST_RESPONSE_CODE));
         } catch (InvalidDataException e) {
@@ -150,6 +150,11 @@ public class SongRestController {
     }
 
     private boolean isNumeric(final String value) {
-        return value!=null && value.matches("\\d+");
+        try{
+            Integer.parseInt(value);
+            return true;
+        }catch (NumberFormatException e){
+            return false;
+        }
     }
 }

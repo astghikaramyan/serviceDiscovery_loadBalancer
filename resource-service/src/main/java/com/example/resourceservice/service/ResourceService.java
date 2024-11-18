@@ -63,7 +63,7 @@ public class ResourceService {
 
     public void deleteResource(final Integer id) {
         ResponseEntity<SongDTO> songDTO = getSongBasedOnResourceId(id);
-        if (!songDTO.getStatusCode().equals(HttpStatusCode.valueOf(200))) {
+        if (songDTO.getStatusCode().equals(HttpStatusCode.valueOf(200))) {
             deleteSong(songDTO.getBody().getId());
         }
         repository.deleteById(id);

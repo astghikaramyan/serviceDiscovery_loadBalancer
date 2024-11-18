@@ -42,18 +42,18 @@ public class ResourceRestController {
     }
 
     @GetMapping(value = "/{id}", produces = "audio/mpeg")
-    public ResponseEntity<byte[]> getResource(@PathVariable Integer id) {
+    public ResponseEntity<byte[]> getResource(@PathVariable String id) {
         try {
 
             if(!isNumeric(String.valueOf(id))){
-                throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, id.toString()));
+                throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, id));
             }
 
             if (!isValidNumeric(String.valueOf(id))) {
-                throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE,  id.toString()));
+                throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE,  id));
             }
-            if (resourceService.existById(id)) {
-                final ResourceEntity resource = resourceService.getResource(id);
+            if (resourceService.existById(Integer.valueOf(id))) {
+                final ResourceEntity resource = resourceService.getResource(Integer.valueOf(id));
                 return ResponseEntity.ok(resource.getData());
             }
             throw new NotFoundException(String.format("Resource with ID=%s not found", id));
@@ -107,7 +107,12 @@ public class ResourceRestController {
     }
 
     private boolean isNumeric(final String value) {
-        return value!=null && value.matches("\\d+");
+        try{
+            Integer.parseInt(value);
+            return true;
+        }catch (NumberFormatException e){
+            return false;
+        }
     }
 
     private ErrorResponse prepareErrorResponse(final String message, final String code) {
