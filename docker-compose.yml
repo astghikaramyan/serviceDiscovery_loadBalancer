@@ -1,5 +1,7 @@
 services:
   eureka-server:
+    environment:
+      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT_ZONE}
     build:
       context: ./eureka-server
       dockerfile: Dockerfile
@@ -22,6 +24,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${RESOURCE_DB}
+    ports:
+      - "${RESOURCE_DB_EXPOSED_PORT}:5432"
     volumes:
       - ./init-scripts/resource-db/create-table-init.sql:/docker-entrypoint-initdb.d/create-table-init.sql
 
@@ -32,10 +36,15 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${SONG_DB}
+    ports:
+      - "${SONG_DB_EXPOSED_PORT}:5432"
     volumes:
       - ./init-scripts/song-db/create-table-init.sql:/docker-entrypoint-initdb.d/create-table-init.sql
 
   resource-service:
+    environment:
+      SPRING_DATASOURCE_URL: ${RESOURCE_DB_URL}
+      SONG_SERVICE_URL: ${SONG_SERVICE_URL}
     build:
       context: ./resource-service
       dockerfile: Dockerfile
@@ -44,6 +53,8 @@ services:
       - eureka-server
 
   song-service:
+    environment:
+      SPRING_DATASOURCE_URL: ${SONG_DB_URL}
     build:
       context: ./song-service
       dockerfile: Dockerfile

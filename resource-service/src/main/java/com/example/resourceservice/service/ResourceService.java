@@ -3,21 +3,18 @@ package com.example.resourceservice.service;
 import com.example.resourceservice.dto.SongDTO;
 import com.example.resourceservice.entity.ResourceEntity;
 import com.example.resourceservice.exception.InvalidDataException;
-import com.example.resourceservice.model.ErrorResponse;
 import com.example.resourceservice.model.SongMetadata;
 import com.example.resourceservice.repository.ResourceRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.jsoup.UnsupportedMimeTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.client.RestTemplate;
 import org.xml.sax.SAXException;
 
@@ -29,6 +26,8 @@ import java.util.Optional;
 
 @Service
 public class ResourceService {
+    @Value("${song.service.url}")
+    private String songServiceUrl;
     @Autowired
     private ResourceRepository repository;
     @Autowired
@@ -146,16 +145,16 @@ public class ResourceService {
     }
 
     private ResponseEntity<String> createSongMetadata(final SongMetadata songMetadata) {
-        String url = "http://song-service:8081/songs";
+        String url = songServiceUrl + "/songs";
         return restTemplate.postForEntity(url, songMetadata, String.class);
     }
     private ResponseEntity<SongDTO> getSongBasedOnResourceId(final Integer id) {
-        String url = "http://song-service:8081/songs/resource-identifiers/" + id;
+        String url = songServiceUrl + "/songs/resource-identifiers/" + id;
         return restTemplate.getForEntity(url, SongDTO.class);
     }
 
     private void deleteSong(final Integer id) {
-        String url = "http://song-service:8081/songs?id=" + id;
+        String url = songServiceUrl + "/songs?id=" + id;
         restTemplate.delete(url);
     }
 
