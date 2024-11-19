@@ -103,7 +103,7 @@ public class ResourceService {
             double durationInSeconds = Double.parseDouble(durationMillis) / 1000;
             int minutes = (int) (durationInSeconds / 60);
             int seconds = (int) (durationInSeconds % 60);
-            return String.format("%d:%d", minutes, seconds);
+            return String.format("%02d:%02d", minutes, seconds);
         } catch (NumberFormatException e) {
             return "Unknown";
         }
