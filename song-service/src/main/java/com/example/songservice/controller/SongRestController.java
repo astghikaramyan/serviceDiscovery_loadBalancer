@@ -1,5 +1,6 @@
 package com.example.songservice.controller;
 
+import com.example.songservice.dto.Song;
 import com.example.songservice.dto.SongDTO;
 import com.example.songservice.entity.SongEntity;
 import com.example.songservice.exception.ConflictDataException;
@@ -16,14 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
+import static com.example.songservice.service.SongService.BAD_REQUEST_RESPONSE_CODE;
+import static com.example.songservice.service.SongService.NOT_FOUND_REQUEST_RESPONSE_CODE;
+
 @RestController
 @RequestMapping("/songs")
 public class SongRestController {
-    private static final String BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE = "Invalid value %s for ID. Must be a positive integer";
-    private static final String BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE = "Invalid ID format: %s for ID. Only positive integers are allowed";
-    private static final String BAD_REQUEST_CSV_TOO_LONG_ERROR_MESSAGE = "CSV string is too long: received %s characters, maximum allowed is 200";
-    private static final String BAD_REQUEST_RESPONSE_CODE = "400";
-    private static final String NOT_FOUND_REQUEST_RESPONSE_CODE = "404";
 
     @Autowired
     private SongService songService;
@@ -47,7 +46,7 @@ public class SongRestController {
             final SongEntity songEntity = songService.addSong(this.songMapper.mapToEntity(songDTO));
             return ResponseEntity.ok(prepareResponseObject(songEntity));
         } catch (ConflictDataException e) {
-            throw new ConflictDataException(prepareErrorResponse(e.getMessage(), "409"));
+            throw new ConflictDataException(this.songService.prepareErrorResponse(e.getMessage(), "409"));
         } catch (final InvalidDataException e) {
             if (Objects.nonNull(e.getErrorResponse())) {
                 ValidationErrorResponse e1 = e.getErrorResponse();
@@ -57,33 +56,17 @@ public class SongRestController {
                 throw new InvalidDataException(e2);
             }
         } catch (final Exception e) {
-            throw new InvalidDataException(prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
+            throw new InvalidDataException(this.songService.prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SongDTO> getSongMetadata(@PathVariable String id) {
-        try {
-            if(!isNumeric(id)){
-                throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, id));
-            }
-            if (!isValidNumeric(id)) {
-                throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE, id));
-            }
-            if (songService.existById(Integer.valueOf(id))) {
-                final Optional<SongEntity> songEntity = songService.getSong(Integer.valueOf(id));
-                if (songEntity.isPresent()) {
-                    return ResponseEntity.ok(songMapper.mapToDTO(songEntity.get()));
-                }
-            }
-            throw new NotFoundException(String.format("Song metadata for ID=%s not found", id));
-        } catch (NotFoundException e) {
-            throw new NotFoundException(prepareErrorResponse(e.getMessage(), NOT_FOUND_REQUEST_RESPONSE_CODE));
-        } catch (InvalidDataException e) {
-            throw new InvalidDataException(prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
-        } catch (Exception e) {
-            throw new InvalidDataException(prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
+    public ResponseEntity<Song> getSongMetadata(@PathVariable Integer id) {
+        final Optional<SongEntity> songEntity = songService.getSong(id);
+        if (songEntity.isPresent()) {
+            return ResponseEntity.ok(songMapper.mapToSong(songEntity.get()));
         }
+        throw new NotFoundException(this.songService.prepareErrorResponse(String.format("Song metadata for ID=%s not found", id), NOT_FOUND_REQUEST_RESPONSE_CODE));
     }
 
     @GetMapping("/resource-identifiers/{resourceId}")
@@ -91,70 +74,19 @@ public class SongRestController {
         final Optional<SongEntity> songEntity = songService.getSongByResourceId(resourceId);
 
         if (songEntity.isPresent()) {
-            return ResponseEntity.ok(songMapper.mapToDTO(songEntity.get()));
+            return ResponseEntity.ok(songMapper.mapToDTOWithResourceId(songEntity.get()));
         }
         throw new NotFoundException(String.format("Song metadata for RESOURCE_ID=%d not found", resourceId));
     }
 
     @DeleteMapping
     public ResponseEntity<Map<String, List<Integer>>> deleteSongsMetadata(@RequestParam String id) {
-        try {
-            if (Objects.nonNull(id) && id.length() > 200) {
-                throw new InvalidDataException(String.format(BAD_REQUEST_CSV_TOO_LONG_ERROR_MESSAGE, id.length()));
-            }
-            String[] ids = Optional.ofNullable(id).map(param -> param.split(",")).orElse(new String[]{});
-            final Map<String, List<Integer>> responseObject = new HashMap<>();
-            List<Integer> removedIds = new LinkedList<>();
-            Arrays.stream(ids).forEach(param -> {
-                if(!isNumeric(param)){
-                    throw new InvalidDataException(String.format(BAD_REQUEST_NOT_NUMBER_ERROR_MESSAGE, param));
-                }
-                if (!isValidNumeric(param)) {
-                    throw new InvalidDataException(String.format(BAD_REQUEST_INCORRECT_NUMBER_ERROR_MESSAGE, param));
-                }
-            });
-            Arrays.stream(ids).forEach(param -> {
-                Integer songIdentifier = Integer.valueOf(param);
-                if (this.songService.existById(songIdentifier)) {
-                    this.songService.deleteSong(songIdentifier);
-                    removedIds.add(songIdentifier);
-                }
-            });
-            responseObject.put("ids", removedIds);
-            return ResponseEntity.ok(responseObject);
-        } catch (InvalidDataException e) {
-            throw new InvalidDataException(prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
-        } catch (Exception e) {
-            throw new InvalidDataException(prepareErrorResponse(e.getMessage(), BAD_REQUEST_RESPONSE_CODE));
-        }
+        return ResponseEntity.ok(this.songService.deleteSongByIds(id));
     }
 
     private Map<String, Integer> prepareResponseObject(final SongEntity songEntity) {
         final Map<String, Integer> responseObject = new HashMap<>();
         responseObject.put("id", songEntity.getId());
         return responseObject;
-    }
-
-    private ErrorResponse prepareErrorResponse(final String message, final String code) {
-        final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorMessage(message);
-        errorResponse.setErrorCode(code);
-        return errorResponse;
-    }
-
-    private boolean isValidNumeric(String id) {
-        final boolean isWholeNumber = Optional.ofNullable(id)
-                                              .map(s-> s.chars().allMatch(Character::isDigit))
-                                              .orElse(false);
-        return isWholeNumber && Integer.parseInt(id) > 0;
-    }
-
-    private boolean isNumeric(final String value) {
-        try{
-            Integer.parseInt(value);
-            return true;
-        }catch (NumberFormatException e){
-            return false;
-        }
     }
 }

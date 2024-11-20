@@ -1,7 +1,7 @@
 services:
   eureka-server:
     environment:
-      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT_ZONE}
+      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT}
     build:
       context: ./eureka-server
       dockerfile: Dockerfile
@@ -12,6 +12,8 @@ services:
     build:
       context: ./gateway-service
       dockerfile: Dockerfile
+    environment:
+      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT}
     ports:
       - "8080:8080"
     depends_on:
@@ -43,6 +45,7 @@ services:
 
   resource-service:
     environment:
+      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT}
       SPRING_DATASOURCE_URL: ${RESOURCE_DB_URL}
       SONG_SERVICE_URL: ${SONG_SERVICE_URL}
     build:
@@ -54,6 +57,7 @@ services:
 
   song-service:
     environment:
+      EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT}
       SPRING_DATASOURCE_URL: ${SONG_DB_URL}
     build:
       context: ./song-service

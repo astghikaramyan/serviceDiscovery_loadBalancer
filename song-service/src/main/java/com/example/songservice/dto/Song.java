@@ -1,14 +1,12 @@
 package com.example.songservice.dto;
 
-public class SongDTO {
+public class Song {
     private Integer id;
     private String name;
     private String artist;
     private String album;
     private String duration;
     private String year;
-    private Integer resourceId;
-
     public Integer getId() {
         return id;
     }
@@ -57,11 +55,4 @@ public class SongDTO {
         this.year = year;
     }
 
-    public Integer getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(final Integer resourceId) {
-        this.resourceId = resourceId;
-    }
 }
